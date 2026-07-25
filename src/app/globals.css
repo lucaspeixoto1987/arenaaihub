@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+/* ===========================================================================
+   Arena — design tokens
+   Paleta quente e sóbria: papel, tinta e um verde profundo reservado a dados.
+   Cores de gráfico validadas com o validador de paletas (rampa ordinal de uma
+   única matiz, contraste >= 3:1 sobre a superfície do card).
+   =========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* Planos */
+  --paper: #f6f5f1; /* fundo da página */
+  --surface: #fdfcfa; /* superfície de card / gráfico */
+  --surface-raised: #ffffff;
+  --surface-sunken: #f1efe9;
+
+  /* Tinta */
+  --ink: #1a1a18;
+  --ink-secondary: #56544e;
+  --ink-muted: #8a877f;
+
+  /* Linhas */
+  --hairline: #e5e2da;
+  --hairline-strong: #d6d2c8;
+
+  /* Acento da marca (usado em dados e sinais, nunca como enfeite) */
+  --accent-100: #e2ede7;
+  --accent-200: #c4dcd0;
+  --accent-300: #7db29b;
+  --accent-400: #59a184;
+  --accent-500: #2f8163;
+  --accent-600: #216450;
+  --accent-700: #17493a;
+
+  /* Estado (sempre acompanhado de ícone ou rótulo, nunca cor sozinha) */
+  --status-good: #0ca30c;
+  --status-good-text: #006300;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+
+  /* Cromo de gráfico */
+  --grid: #e8e5dd;
+  --axis: #d6d2c8;
+  --de-emphasis: #c9c5bb;
+
+  --radius: 14px;
+  --shadow-card: 0 1px 2px rgba(26, 26, 24, 0.04);
+  --shadow-pop:
+    0 8px 24px -8px rgba(26, 26, 24, 0.18), 0 2px 6px rgba(26, 26, 24, 0.06);
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+
+  --color-accent-100: var(--accent-100);
+  --color-accent-200: var(--accent-200);
+  --color-accent-300: var(--accent-300);
+  --color-accent-400: var(--accent-400);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
+
+  --color-good: var(--status-good);
+  --color-good-text: var(--status-good-text);
+  --color-warning: var(--status-warning);
+  --color-serious: var(--status-serious);
+  --color-critical: var(--status-critical);
+
+  --color-grid: var(--grid);
+  --color-axis: var(--axis);
+  --color-de-emphasis: var(--de-emphasis);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), Georgia, "Times New Roman", serif;
+
+  --radius-card: var(--radius);
+}
+
+* {
+  border-color: var(--hairline);
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--accent-200);
+  color: var(--accent-700);
+}
+
+/* Foco visível e consistente em toda a interface */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent-500);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Barra de rolagem discreta */
+@supports (scrollbar-width: thin) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--hairline-strong) transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
