@@ -1,17 +1,17 @@
 import { Hammer } from "lucide-react";
 
 /**
- * Aviso honesto de etapa: a interface já existe, o motor que a alimenta é o
+ * Aviso de etapa: a tela e o formato já existem, o motor que a alimenta é o
  * próximo passo do projeto.
  */
 export function BuildNotice({ children }: { children: React.ReactNode }) {
   return (
-    <p className="flex items-start gap-2 rounded-[10px] border border-dashed border-hairline-strong bg-surface-sunken px-3.5 py-3 text-[12.5px] leading-5 text-ink-secondary">
+    <p className="flex items-start gap-2 rounded-lg border border-dashed border-line bg-surface-2 px-3 py-2.5 text-[11.5px] leading-snug text-ink-2">
       <Hammer
-        size={14}
-        strokeWidth={1.75}
+        size={13}
+        strokeWidth={1.9}
         aria-hidden
-        className="mt-0.5 shrink-0 text-ink-muted"
+        className="mt-0.5 shrink-0 text-ink-3"
       />
       {children}
     </p>

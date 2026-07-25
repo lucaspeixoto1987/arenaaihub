@@ -1,20 +1,22 @@
-# Arena — inteligência de vendas
+# VENDE-C AI HUB
 
-Base do produto: um painel para o vendedor com três ferramentas ao redor da
-reunião — **preparação** (antes), **análise pós-venda** (depois) e **sala de
-treino** (entre uma e outra).
+Painel de ferramentas de IA para o vendedor, dentro da plataforma ARENA.
 
-Esta primeira entrega é a **fundação da interface**: shell de navegação, sistema
-de design, painel completo com dados de demonstração e as três telas de
-ferramenta já estruturadas. Os motores de IA de cada ferramenta entram nas
-próximas etapas — onde isso vale, a tela diz isso de forma explícita.
+Quatro ferramentas na coluna da esquerda — **Preparador de Reunião**, **Análise
+de Call**, **Simulador de Objeções** e **Treino de Vendas** — cada uma abrindo em
+popup. A **C-CÍLIA** fica docada à direita o tempo todo: quando você não está
+dentro de uma ferramenta, conversa com ela; quando sai de uma, o contexto do que
+você acabou de fazer aparece na conversa.
+
+Esta entrega é a **interface completa**, com dados de demonstração. Os motores de
+IA de cada ferramenta entram nas próximas etapas — onde isso vale, a tela diz.
 
 ## Rodando
 
 ```bash
 npm install
 npm run dev      # http://localhost:3000
-npm run build    # build de produção
+npm run build
 npm run lint
 npm run format
 ```
@@ -24,65 +26,70 @@ npm run format
 - **Next.js 16** (App Router) + **React 19** + **TypeScript**
 - **Tailwind CSS v4** com tokens em CSS custom properties
 - **lucide-react** para ícones
+- Popups em `<dialog>` nativo — foco preso, Esc e fundo inerte sem biblioteca
 
 ## Estrutura
 
 ```
 src/
   app/
-    layout.tsx              fontes, metadados, idioma
-    globals.css             tokens de design (cores, tipografia, sombras)
+    layout.tsx                 fonte, metadados, idioma
+    globals.css                tokens (cromo escuro, área clara, marca, notas)
     (app)/
-      layout.tsx            shell: sidebar + topbar
-      page.tsx              Painel
-      preparacao/           Preparação de reunião
-      pos-venda/            Análise pós-venda
-      treino/               Sala de treino
+      layout.tsx               shell: menu lateral + área de trabalho
+      page.tsx                 o Hub inteiro (estado das ferramentas e do chat)
   components/
-    layout/                 sidebar, topbar, cabeçalho de página
-    ui/                     card, botão, badge, campos, medidor, aviso
-    charts/                 sparkline, funil de pipeline
-    dashboard/              blocos do painel
+    shell/sidebar.tsx          menu lateral escuro da ARENA
+    hub/
+      banner.tsx               banner preto, Ficha do Negócio, Vendedor/Líder
+      tool-card.tsx            cartão de ferramenta + divisor de etapa
+      previews.tsx             prévias dentro dos cartões
+      ccilia.tsx               painel de conversa docado
+      lider.tsx                visão do líder (uso das ferramentas pelo time)
+      modal.tsx                primitivo de popup
+      dialogs/                 os cinco popups
+    ui/                        botão, campos, aviso de etapa
   lib/
-    data.ts                 camada de dados (demonstração)
-    format.ts               formatação pt-BR
-    cn.ts                   utilitário de classes
+    data.ts                    dados de demonstração
+    cn.ts                      utilitário de classes
 ```
 
 ### Trocar os dados de demonstração por dados reais
 
-`src/lib/data.ts` já expõe os tipos finais do domínio (`Kpi`, `Meeting`,
-`FunnelStage`, `CallReview`, `Drill`). As funções `get*` retornam constantes
-locais; ligar a um banco ou API é substituir o corpo dessas funções, sem tocar
-em nenhum componente.
+`src/lib/data.ts` expõe os tipos do domínio (`Preparacao`, `AnaliseCall`,
+`Objecao`, `CenarioTreino`, `ResumoTreino`, `MembroEquipe`). As funções `get*`
+retornam constantes locais; ligar a um banco ou API é substituir o corpo delas,
+sem tocar em componente nenhum.
 
 ## Decisões de design
 
-**Sem cara de ferramenta de IA.** Nada de gradiente roxo, brilho ou ícone de
-faísca. A base é papel quente (`#f6f5f1`), tinta quase preta e hairlines de 1px
-no lugar de sombras pesadas. Títulos em serifa editorial (Instrument Serif),
-interface em Inter.
+**Cabe em uma tela.** O Hub ocupa exatamente a altura da janela: o menu, o
+banner, a coluna das ferramentas e a conversa vivem juntos sem rolagem de
+página. O que precisa rolar rola dentro do próprio painel (mensagens, listas).
+Abaixo de 1024px o layout empilha e a página passa a rolar normalmente.
 
-**Cor com função.** O verde da marca é reservado a dados e sinais — nunca é
-enfeite. O botão primário é tinta, não acento, para o acento continuar
-significando alguma coisa quando aparece.
+**Sem CRM.** Não há valor de negócio, funil nem meta em lugar nenhum. Os únicos
+números do painel vêm do uso das ferramentas: preparações geradas, notas das
+calls analisadas e evolução no treino.
 
-**Estado nunca só por cor.** Todo rótulo de estado (preparação da reunião, score
-da chamada, variação de indicador) carrega texto — e ícone, quando ajuda — para
-funcionar em impressão, daltonismo e leitor de tela.
+**O preto é da casa.** Menu e banner mantêm o cromo escuro do app atual, e o
+rosa da marca aparece em identidade, interação e nos dados do treino — nunca
+como enfeite.
 
-**Gráficos.** Cada gráfico é de uma matiz só. O funil usa uma rampa ordinal
-validada (monotonia de luminosidade, distância mínima entre passos, ponta clara
-acima de 2:1 contra a superfície) e tem alternância para tabela; as sparklines
-usam a cor de recuo com o período atual no acento, e o valor de cada ponto é
-alcançável por mouse e por teclado.
+**Nota nunca só por cor.** As barras de nota usam a escala verde/âmbar/vermelho
+validada para daltonismo e contraste, e o número aparece impresso embaixo de
+cada barra, então a leitura não depende de enxergar a cor.
 
-**Honestidade de etapa.** Onde a ferramenta ainda não tem motor, a tela mostra
-um aviso dizendo isso — em vez de simular um resultado que não existe.
+**Ferramenta abastece a conversa.** Todo popup tem uma ação que leva o contexto
+para a C-CÍLIA e fecha — é assim que as duas metades da tela se conversam.
+
+**Honestidade de etapa.** Onde o motor ainda não existe, a tela avisa em vez de
+simular um resultado.
 
 ## Próximas etapas sugeridas
 
-1. Motor de preparação: pesquisa do lead e geração do roteiro.
-2. Motor de análise: leitura de transcrição e sugestão de follow-up.
-3. Simulador de treino: rodadas com resposta do cliente simulado e avaliação.
-4. Persistência (contas, reuniões, histórico) e autenticação.
+1. Motor da Análise de Call: transcrição → nota, pontos e próximo passo.
+2. Motor do Preparador: pesquisa do lead e roteiro da reunião.
+3. Simulador e Treino com cliente simulado respondendo.
+4. C-CÍLIA conectada, recebendo o contexto das ferramentas.
+5. Persistência (histórico, Ficha do Negócio) e autenticação.

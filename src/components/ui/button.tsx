@@ -1,53 +1,41 @@
-import Link from "next/link";
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "secondary" | "ghost";
-type Size = "sm" | "md";
+type Variante = "marca" | "solida" | "contorno" | "fantasma";
+type Tamanho = "sm" | "md";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-lg font-medium whitespace-nowrap transition-colors duration-150 disabled:pointer-events-none disabled:opacity-45";
 
-const variants: Record<Variant, string> = {
-  primary: "bg-ink text-paper hover:bg-[#2c2c29]",
-  secondary:
-    "border border-hairline-strong bg-surface-raised text-ink hover:bg-surface-sunken",
-  ghost: "text-ink-secondary hover:bg-surface-sunken hover:text-ink",
+const variantes: Record<Variante, string> = {
+  marca: "bg-brand text-white hover:bg-brand-strong",
+  solida: "bg-ink text-white hover:bg-[#2a2e33]",
+  contorno: "border border-line bg-surface text-ink hover:bg-surface-2",
+  fantasma: "text-ink-2 hover:bg-surface-3 hover:text-ink",
 };
 
-const sizes: Record<Size, string> = {
-  sm: "h-8 px-3 text-[13px]",
-  md: "h-10 px-4 text-sm",
+const tamanhos: Record<Tamanho, string> = {
+  sm: "h-8 px-3 text-[12.5px]",
+  md: "h-10 px-4 text-[13.5px]",
 };
 
-export function buttonClasses(
-  variant: Variant = "secondary",
-  size: Size = "md",
+export function botaoClasses(
+  variante: Variante = "contorno",
+  tamanho: Tamanho = "md",
   className?: string,
 ) {
-  return cn(base, variants[variant], sizes[size], className);
+  return cn(base, variantes[variante], tamanhos[tamanho], className);
 }
 
 export function Button({
-  variant = "secondary",
-  size = "md",
+  variante = "contorno",
+  tamanho = "md",
   className,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: Variant;
-  size?: Size;
+  variante?: Variante;
+  tamanho?: Tamanho;
 }) {
   return (
-    <button className={buttonClasses(variant, size, className)} {...props} />
-  );
-}
-
-export function ButtonLink({
-  variant = "secondary",
-  size = "md",
-  className,
-  ...props
-}: React.ComponentProps<typeof Link> & { variant?: Variant; size?: Size }) {
-  return (
-    <Link className={buttonClasses(variant, size, className)} {...props} />
+    <button className={botaoClasses(variante, tamanho, className)} {...props} />
   );
 }

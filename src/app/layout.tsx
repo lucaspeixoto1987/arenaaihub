@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Instrument_Serif } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -8,20 +8,10 @@ const inter = Inter({
   display: "swap",
 });
 
-const display = Instrument_Serif({
-  variable: "--font-display",
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: {
-    default: "Arena — inteligência de vendas",
-    template: "%s · Arena",
-  },
+  title: "VENDE-C AI HUB · ARENA",
   description:
-    "Preparação de reunião, análise pós-venda e treino de objeções em um só painel.",
+    "Preparador de reunião, análise de call, simulador de objeções e treino de vendas, com a C-CÍLIA sempre do lado.",
 };
 
 export default function RootLayout({
@@ -30,11 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="pt-BR"
-      className={`${inter.variable} ${display.variable} h-full antialiased`}
-    >
-      <body className="min-h-full">{children}</body>
+    <html lang="pt-BR" className={`${inter.variable} h-full antialiased`}>
+      <body className="h-full">{children}</body>
     </html>
   );
 }

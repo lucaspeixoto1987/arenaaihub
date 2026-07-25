@@ -1,149 +1,195 @@
-import { ClipboardList, Dumbbell, Waypoints } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { StatTile } from "@/components/dashboard/stat-tile";
-import { ToolCard } from "@/components/dashboard/tool-card";
-import { UpcomingMeetings } from "@/components/dashboard/upcoming-meetings";
-import { RecentReviews } from "@/components/dashboard/recent-reviews";
-import { TrainingPanel } from "@/components/dashboard/training-panel";
-import { PipelineFunnel } from "@/components/charts/pipeline-funnel";
+"use client";
+
+import { useState } from "react";
 import {
-  getDrills,
-  getFunnel,
-  getKpis,
-  getMeetings,
-  getReviews,
-  getSeller,
+  ClipboardList,
+  Headphones,
+  MessageSquareWarning,
+  Swords,
+} from "lucide-react";
+import { Banner, type Segmento } from "@/components/hub/banner";
+import { CCilia, type Mensagem } from "@/components/hub/ccilia";
+import { EtapaDivisor, ToolCard } from "@/components/hub/tool-card";
+import {
+  CallsPreview,
+  PreparacoesPreview,
+  TreinoPreview,
+} from "@/components/hub/previews";
+import { LiderView } from "@/components/hub/lider";
+import { PreparadorDialog } from "@/components/hub/dialogs/preparador";
+import { AnaliseCallDialog } from "@/components/hub/dialogs/analise-call";
+import { SimuladorDialog } from "@/components/hub/dialogs/simulador";
+import { TreinoDialog } from "@/components/hub/dialogs/treino";
+import { FichaDialog } from "@/components/hub/dialogs/ficha";
+import {
+  getCalls,
+  getEquipe,
+  getMembro,
+  getObjecoes,
+  getPreparacoes,
+  getTreino,
 } from "@/lib/data";
-import { formatCurrency, formatDateLong } from "@/lib/format";
 
-/** A saudação e a data são do momento da visita. */
-export const dynamic = "force-dynamic";
+type Ferramenta = "preparador" | "calls" | "simulador" | "treino" | "ficha";
 
-function greeting(hour: number) {
-  if (hour < 12) return "Bom dia";
-  if (hour < 18) return "Boa tarde";
-  return "Boa noite";
-}
+const SAUDACAO: Mensagem = {
+  id: "m0",
+  autor: "cecilia",
+  texto:
+    "Oi, Lucas! Sou a C-CÍLIA, sua parceira de vendas aqui no VENDE-C. Me conta o que você tem pela frente — ou abra uma ferramenta ao lado e o contexto vem parar aqui. Bora!",
+};
 
-const tools = [
-  {
-    href: "/preparacao",
-    icon: ClipboardList,
-    title: "Preparação de reunião",
-    description:
-      "Pesquise o lead e entre na chamada com hipótese de dor, perguntas e plano de condução.",
-    steps: [
-      "Contexto da empresa, do contato e do momento",
-      "Perguntas de diagnóstico na ordem certa",
-      "Riscos e objeções prováveis do cenário",
-    ],
-    cta: "Preparar uma reunião",
-  },
-  {
-    href: "/pos-venda",
-    icon: Waypoints,
-    title: "Análise pós-venda",
-    description:
-      "Cole a transcrição da chamada e receba a leitura do que funcionou e do próximo passo.",
-    steps: [
-      "Momentos-chave e sinais de compra que passaram",
-      "Objeções tratadas e as que ficaram abertas",
-      "Próximo passo sugerido com follow-up pronto",
-    ],
-    cta: "Analisar uma chamada",
-  },
-  {
-    href: "/treino",
-    icon: Dumbbell,
-    title: "Sala de treino",
-    description:
-      "Simule objeções e cenários difíceis antes de encarar o cliente real.",
-    steps: [
-      "Objeções de preço, concorrente e urgência",
-      "Cenários por perfil de decisor e etapa",
-      "Feedback rodada a rodada, com evolução medida",
-    ],
-    cta: "Começar um treino",
-  },
-];
+const FICHA_COMPLETUDE = 68;
 
-export default function DashboardPage() {
-  const seller = getSeller();
-  const kpis = getKpis();
-  const meetings = getMeetings();
-  const funnel = getFunnel();
-  const reviews = getReviews();
-  const drills = getDrills();
+export default function HubPage() {
+  const membro = getMembro();
+  const preparacoes = getPreparacoes();
+  const calls = getCalls();
+  const treino = getTreino();
+  const equipe = getEquipe();
+  const objecoes = getObjecoes();
+  const rodadasObjecoes = objecoes.reduce((total, o) => total + o.rodadas, 0);
 
-  const now = new Date();
-  const today = meetings.filter((meeting) => meeting.day === "hoje");
-  const unprepared = today.filter((meeting) => meeting.prep !== "pronto");
-  const atStake = today.reduce(
-    (total, meeting) => total + meeting.dealValue,
-    0,
-  );
-  const firstName = seller.name.split(" ")[0];
+  const [segmento, setSegmento] = useState<Segmento>("vendedor");
+  const [aberta, setAberta] = useState<Ferramenta | null>(null);
+  const [destacado, setDestacado] = useState<string | null>(null);
+  const [mensagens, setMensagens] = useState<Mensagem[]>([SAUDACAO]);
+
+  function abrir(ferramenta: Ferramenta, id: string | null = null) {
+    setDestacado(id);
+    setAberta(ferramenta);
+  }
+
+  function fechar() {
+    setAberta(null);
+    setDestacado(null);
+  }
+
+  function enviarMensagem(texto: string) {
+    setMensagens((atuais) => [
+      ...atuais,
+      { id: `u${atuais.length}`, autor: "voce", texto },
+      {
+        id: `s${atuais.length + 1}`,
+        autor: "sistema",
+        texto:
+          "A C-CÍLIA responde quando o motor de conversa for conectado — próxima etapa do projeto.",
+      },
+    ]);
+  }
+
+  function receberContexto(titulo: string, detalhe: string) {
+    setMensagens((atuais) => [
+      ...atuais,
+      { id: `c${atuais.length}`, autor: "contexto", texto: titulo, detalhe },
+    ]);
+  }
 
   return (
-    <div className="mx-auto w-full max-w-[1360px]">
-      <header className="pt-8 pb-7">
-        <p className="text-[12.5px] text-ink-muted first-letter:uppercase">
-          {formatDateLong(now)}
-        </p>
-        <h1 className="mt-1.5 font-display text-[34px] leading-[1.15] tracking-[-0.01em] text-ink sm:text-[40px]">
-          {greeting(now.getHours())}, {firstName}.
-        </h1>
-        <p className="mt-2 max-w-xl text-[14px] leading-6 text-ink-secondary">
-          {today.length} reuniões hoje, {unprepared.length} ainda sem preparação
-          completa, {formatCurrency(atStake)} em jogo. Comece pela que abre em
-          seguida.
-        </p>
-      </header>
+    <div className="flex h-full min-h-0 flex-col gap-3 overflow-y-auto p-3 lg:overflow-hidden">
+      <Banner
+        segmento={segmento}
+        aoTrocarSegmento={setSegmento}
+        aoAbrirFicha={() => abrir("ficha")}
+        fichaCompleta={FICHA_COMPLETUDE}
+      />
 
-      <section aria-labelledby="indicadores">
-        <h2 id="indicadores" className="sr-only">
-          Indicadores
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {kpis.map((kpi) => (
-            <StatTile key={kpi.id} kpi={kpi} />
-          ))}
-        </div>
-      </section>
+      {segmento === "vendedor" ? (
+        <div className="grid gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(300px,340px)_minmax(0,1fr)]">
+          {/* Coluna das ferramentas */}
+          <div className="flex flex-col gap-2 lg:min-h-0">
+            <EtapaDivisor>Antes da reunião</EtapaDivisor>
+            <div className="min-h-[132px] lg:flex-1">
+              <ToolCard
+                icone={ClipboardList}
+                titulo="Preparador de Reunião"
+                descricao="Objeções, perguntas obrigatórias, tom e roteiro."
+                aoAbrir={() => abrir("preparador")}
+              >
+                <PreparacoesPreview
+                  preparacoes={preparacoes}
+                  aoAbrir={(id) => abrir("preparador", id)}
+                />
+              </ToolCard>
+            </div>
 
-      <section aria-labelledby="ferramentas" className="mt-10">
-        <div className="mb-4 flex items-baseline justify-between gap-4">
-          <h2
-            id="ferramentas"
-            className="text-[15px] font-semibold tracking-[-0.01em] text-ink"
-          >
-            Suas ferramentas
-          </h2>
-          <p className="hidden text-[12.5px] text-ink-muted sm:block">
-            Antes, durante e depois da reunião
-          </p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {tools.map((tool) => (
-            <ToolCard key={tool.href} {...tool} />
-          ))}
-        </div>
-      </section>
+            <EtapaDivisor>Depois da reunião</EtapaDivisor>
+            <div className="min-h-[164px] lg:flex-1">
+              <ToolCard
+                icone={Headphones}
+                titulo="Análise de Call"
+                descricao="Cole a transcrição e receba análise e avaliação."
+                aoAbrir={() => abrir("calls")}
+              >
+                <CallsPreview
+                  calls={calls}
+                  aoAbrir={(id) => abrir("calls", id)}
+                />
+              </ToolCard>
+            </div>
 
-      <section className="mt-10 grid gap-4 xl:grid-cols-3">
-        <div className="flex flex-col gap-4 xl:col-span-2">
-          <UpcomingMeetings meetings={meetings} />
-          <RecentReviews reviews={reviews} />
-        </div>
+            <EtapaDivisor>Ambiente de treino</EtapaDivisor>
+            <div className="flex min-h-[132px] gap-2 lg:flex-1">
+              <div className="w-[116px] shrink-0">
+                <ToolCard
+                  icone={MessageSquareWarning}
+                  titulo="Simulador de Objeções"
+                  descricao="Treino rápido"
+                  aoAbrir={() => abrir("simulador")}
+                  compacto
+                >
+                  <span className="text-[10px] leading-snug text-ink-3">
+                    {objecoes.length} objeções · {rodadasObjecoes} rodadas
+                  </span>
+                </ToolCard>
+              </div>
+              <div className="min-w-0 flex-1">
+                <ToolCard
+                  icone={Swords}
+                  titulo="Treino de Vendas"
+                  descricao="Simule uma conversa com um cliente."
+                  aoAbrir={() => abrir("treino")}
+                >
+                  <TreinoPreview resumo={treino} />
+                </ToolCard>
+              </div>
+            </div>
+          </div>
 
-        <div className="flex flex-col gap-4">
-          <Card>
-            <PipelineFunnel stages={funnel} />
-          </Card>
-
-          <TrainingPanel drills={drills} />
+          {/* C-CÍLIA sempre presente */}
+          <CCilia
+            mensagens={mensagens}
+            aoEnviar={enviarMensagem}
+            aoLimpar={() => setMensagens([SAUDACAO])}
+          />
         </div>
-      </section>
+      ) : (
+        <LiderView equipe={equipe} />
+      )}
+
+      <PreparadorDialog
+        aberto={aberta === "preparador"}
+        aoFechar={fechar}
+        aoEnviarContexto={receberContexto}
+        destacado={destacado}
+      />
+      <AnaliseCallDialog
+        aberto={aberta === "calls"}
+        aoFechar={fechar}
+        aoEnviarContexto={receberContexto}
+        destacado={destacado}
+      />
+      <SimuladorDialog aberto={aberta === "simulador"} aoFechar={fechar} />
+      <TreinoDialog aberto={aberta === "treino"} aoFechar={fechar} />
+      <FichaDialog
+        aberto={aberta === "ficha"}
+        aoFechar={fechar}
+        completude={FICHA_COMPLETUDE}
+      />
+
+      <p className="sr-only">
+        Painel de {membro.nome}, {membro.papel} na {membro.empresa}.
+      </p>
     </div>
   );
 }
