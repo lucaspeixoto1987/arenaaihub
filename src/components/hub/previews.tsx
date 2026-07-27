@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import {
   faixaNota,
   type AnaliseCall,
@@ -30,19 +31,25 @@ export function PreparacoesPreview({
           <button
             type="button"
             onClick={() => aoAbrir(item.id)}
-            className="pointer-events-auto -mx-1 flex w-[calc(100%+0.5rem)] items-center gap-2 rounded px-1 py-[3px] text-left transition-colors hover:bg-surface-3"
+            className="group/linha pointer-events-auto -mx-1 flex w-[calc(100%+0.5rem)] items-center gap-2 rounded px-1 py-[3px] text-left transition-colors hover:bg-surface-3"
           >
             <span
               aria-hidden
               className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
             />
-            <span className="min-w-0 flex-1 truncate text-[11px] text-ink-2">
+            <span className="min-w-0 flex-1 truncate text-[11px] text-ink-2 group-hover/linha:text-ink">
               {item.contato}
               <span className="text-ink-3"> · {item.empresa}</span>
             </span>
             <span className="shrink-0 text-[10px] text-ink-3">
               {item.quando}
             </span>
+            <ChevronRight
+              size={12}
+              strokeWidth={2}
+              aria-hidden
+              className="-mr-0.5 shrink-0 text-ink-3 opacity-40 transition-opacity group-hover/linha:opacity-100"
+            />
           </button>
         </li>
       ))}

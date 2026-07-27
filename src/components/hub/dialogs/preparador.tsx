@@ -50,7 +50,8 @@ export function PreparadorDialog({
   }
 
   const noResultado =
-    (vistaEscolhida ?? (destacado ? "resultado" : "formulario")) === "resultado";
+    (vistaEscolhida ?? (destacado ? "resultado" : "formulario")) ===
+    "resultado";
   const setVista = setVistaEscolhida;
 
   const selecionada = preparacoes.find((item) => item.id === destacado);
@@ -287,6 +288,9 @@ export function PreparadorDialog({
               className="text-ink-3"
             />
             Últimas preparações
+          </p>
+          <p className="mt-0.5 text-[11px] text-ink-3">
+            Clique em uma para abrir a preparação pronta.
           </p>
 
           <div className="relative mt-2.5">
