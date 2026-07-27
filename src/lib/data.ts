@@ -521,6 +521,327 @@ export function getPreparacaoResultado() {
   return preparacaoExemplo;
 }
 
+/* ===========================================================================
+   Resultado da Análise de Call
+   Mesma ideia do Preparador: cada campo tem um trabalho na tela. Os três
+   estados (bom / atenção / falhou) carregam cor, ícone e rótulo — nunca cor
+   sozinha — e servem para separar visualmente o que elogia do que cobra.
+   =========================================================================== */
+
+export type EstadoCritica = "bom" | "atencao" | "falhou";
+
+export type CriterioCall = {
+  id: string;
+  titulo: string;
+  nota: number;
+  estado: EstadoCritica;
+  comentario: string;
+  citacao?: string;
+};
+
+export type AnaliseResultado = {
+  id: string;
+  contato: string;
+  empresa: string;
+  data: string;
+  vendedor: string;
+
+  /** 0–100. */
+  nota: number;
+  resumo: string;
+  principalPonto: string;
+
+  /** Clima ao longo da chamada, do começo ao fim. */
+  sentimento: { trecho: string; estado: "positivo" | "neutro" | "negativo" }[];
+
+  criterios: CriterioCall[];
+  modosDeFalha: string[];
+  violacoes: {
+    titulo: string;
+    citacao: string;
+    impacto: string;
+    peso: number;
+  }[];
+
+  cliente: { dorReal: string; objecaoFundo: string; ficouNaMesa: string[] };
+
+  conducao: {
+    falaVendedor: number;
+    perguntasTotal: number;
+    perguntasAbertas: number;
+    interrupcoes: number;
+    escuta: string;
+    clareza: string;
+  };
+
+  fezBem: { titulo: string; citacao: string; porque: string }[];
+  melhorar: {
+    titulo: string;
+    citacao: string;
+    impacto: string;
+    correcao: string;
+  }[];
+  replay: { gatilho: string; disse: string; ideal: string; porque: string }[];
+  plano: { titulo: string; detalhe: string; frase: string }[];
+};
+
+const analiseExemplo: AnaliseResultado = {
+  id: "c8",
+  contato: "Sandra Nunes",
+  empresa: "Nunes Contabilidade",
+  data: "13 de julho",
+  vendedor: "Lucas Peixoto",
+
+  nota: 27,
+  resumo:
+    "Call focada em apresentar o produto, sem construir valor. A dor da sobrecarga da equipe passou batida e o custo da inação nunca foi dimensionado — daí veio a objeção de preço, contornada com argumento genérico.",
+  principalPonto:
+    "Pare de apresentar o produto e comece a diagnosticar o custo da inação: pergunte sobre o impacto financeiro e operacional da falta de processo antes de falar de qualquer solução.",
+
+  sentimento: [
+    { trecho: "Abertura", estado: "neutro" },
+    { trecho: "Meio", estado: "neutro" },
+    { trecho: "Fechamento", estado: "negativo" },
+  ],
+
+  criterios: [
+    {
+      id: "situacao",
+      titulo: "Situação",
+      nota: 5,
+      estado: "atencao",
+      citacao:
+        "você tem um escritório de contabilidade, e normalmente escritório de contabilidade sofre bastante com a parte comercial, né?",
+      comentario:
+        "Pré-enquadramento no lugar de pergunta aberta — a cliente não chegou a descrever a realidade dela.",
+    },
+    {
+      id: "dor",
+      titulo: "Dor",
+      nota: 3,
+      estado: "falhou",
+      comentario:
+        "O custo da inação não foi dimensionado. A cliente não entendeu o que perde mantendo o improviso.",
+    },
+    {
+      id: "prova",
+      titulo: "Prova",
+      nota: 4,
+      estado: "atencao",
+      citacao:
+        "a gente já treinou mais de quinhentas empresas e formou mais de cinquenta mil alunos",
+      comentario:
+        "Credencial genérica, que não responde a nenhuma tensão específica da cliente.",
+    },
+    {
+      id: "objecoes",
+      titulo: "Objeções",
+      nota: 3,
+      estado: "falhou",
+      comentario:
+        "As objeções de tempo e preço foram atropeladas com argumento superficial.",
+    },
+    {
+      id: "proximo",
+      titulo: "Próximo passo",
+      nota: 2,
+      estado: "falhou",
+      comentario:
+        "Terminou sem data e sem dono — só o envio de material por e-mail.",
+    },
+    {
+      id: "conducao",
+      titulo: "Condução",
+      nota: 4,
+      estado: "atencao",
+      comentario: "Monólogo longo demais e escuta passiva.",
+    },
+  ],
+
+  modosDeFalha: [
+    "Pulou o contexto — a cliente desligou da conversa",
+    "Pulou a tensão — ficou no “é bom, mas não faço nada”",
+    "Começou pela evidência — a cliente virou comparadora de preço",
+  ],
+
+  violacoes: [
+    {
+      titulo: "Objeção atropelada",
+      citacao:
+        "Não, mas é bem tranquilo, Sandra. A plataforma é bem intuitiva, todo mundo usa.",
+      impacto:
+        "Desqualificou a preocupação da cliente com a sobrecarga da equipe antes de acolher o sentimento dela.",
+      peso: 10,
+    },
+    {
+      titulo: "Preço antes de valor",
+      citacao: "O investimento é de doze mil, mas dá pra parcelar tranquilo.",
+      impacto:
+        "O número apareceu sem nenhuma tensão construída, então virou o único critério de decisão.",
+      peso: 8,
+    },
+  ],
+
+  cliente: {
+    dorReal:
+      "Sobrecarga operacional e falta de tempo da equipe para implementar novas rotinas.",
+    objecaoFundo:
+      "Medo de que o programa seja mais uma carga de trabalho para uma equipe já exausta.",
+    ficouNaMesa: [
+      "O impacto financeiro de perder clientes por falta de processo.",
+      "A chance de trazer o sócio financeiro para uma conversa de diagnóstico.",
+    ],
+  },
+
+  conducao: {
+    falaVendedor: 80,
+    perguntasTotal: 3,
+    perguntasAbertas: 0,
+    interrupcoes: 0,
+    escuta: "Passiva: esperou a vez de falar o script em vez de aprofundar.",
+    clareza: "Clara, mas presa a características em vez de benefícios.",
+  },
+
+  fezBem: [
+    {
+      titulo: "Tom de voz",
+      citacao: "Consegui te pegar num bom momento?",
+      porque: "Respeitou o tempo da cliente logo na abertura.",
+    },
+    {
+      titulo: "Clareza na explicação",
+      citacao: "O programa tem três frentes: processo, time e cadência.",
+      porque: "A estrutura ficou fácil de entender, mesmo sem virar valor.",
+    },
+  ],
+
+  melhorar: [
+    {
+      titulo: "Diagnóstico de dor",
+      citacao: "É mais no improviso, eu diria.",
+      impacto: "Perdeu a chance de entender o custo real do improviso.",
+      correcao:
+        "Entendo. E hoje, quando esse improviso acontece, qual é o impacto direto no seu faturamento ou na perda de clientes?",
+    },
+    {
+      titulo: "Contorno de objeção",
+      citacao:
+        "meu time é pequeno, são dez pessoas, e todo mundo é bem sobrecarregado.",
+      impacto: "A cliente sentiu que a dor dela não foi compreendida.",
+      correcao:
+        "Entendo perfeitamente. Se o seu time já está sobrecarregado, a última coisa que você precisa é de mais uma tarefa. Deixa eu te perguntar: quanto tempo vocês perdem hoje resolvendo problemas que um processo estruturado resolveria sozinho?",
+    },
+  ],
+
+  replay: [
+    {
+      gatilho: "A cliente diz que o time está sobrecarregado",
+      disse:
+        "Não, mas é bem tranquilo, Sandra. A plataforma é bem intuitiva, todo mundo usa.",
+      ideal:
+        "Entendo perfeitamente. Se o seu time já está sobrecarregado, a última coisa que você precisa é de mais uma tarefa. Deixa eu te perguntar: quanto tempo vocês perdem hoje resolvendo problemas que um processo estruturado resolveria sozinho?",
+      porque:
+        "Acolhe a dor, valida a preocupação e devolve uma pergunta que aponta para ganho de tempo.",
+    },
+    {
+      gatilho: "A cliente diz que hoje é tudo no improviso",
+      disse: "Perfeito, é exatamente isso que a gente resolve.",
+      ideal:
+        "E quando o improviso acontece, o que costuma dar errado? Já perdeu cliente por causa disso?",
+      porque:
+        "Transforma uma deixa em diagnóstico, em vez de pular direto para a solução.",
+    },
+  ],
+
+  plano: [
+    {
+      titulo: "Diagnosticar antes de apresentar",
+      detalhe: "Nenhum slide antes de entender como funciona hoje.",
+      frase:
+        "Antes de eu te mostrar qualquer coisa, me conta: como funciona hoje o atendimento de quem entra em contato com o seu escritório?",
+    },
+    {
+      titulo: "Construir tensão antes da solução",
+      detalhe: "A cliente precisa enxergar o custo de não mudar nada.",
+      frase:
+        "O que acontece com o seu escritório se nada mudar nos próximos seis meses e vocês continuarem operando no improviso?",
+    },
+    {
+      titulo: "Acolher a objeção antes de reverter",
+      detalhe:
+        "Primeiro valida o sentimento, depois faz a pergunta que vira o jogo.",
+      frase:
+        "Faz total sentido se preocupar com o tempo da sua equipe. Deixa eu te perguntar: se o processo fizesse a equipe trabalhar menos, e não mais, isso mudaria a conversa?",
+    },
+  ],
+};
+
+export function getAnaliseResultado() {
+  return analiseExemplo;
+}
+
+/** Faixa da nota 0–100 da análise de call. */
+export function faixaNota100(nota: number): {
+  estado: EstadoCritica;
+  cor: string;
+  wash: string;
+  linha: string;
+  rotulo: string;
+} {
+  if (nota >= 70)
+    return {
+      estado: "bom",
+      cor: "var(--score-good)",
+      wash: "var(--good-wash)",
+      linha: "var(--good-line)",
+      rotulo: "call forte",
+    };
+  if (nota >= 45)
+    return {
+      estado: "atencao",
+      cor: "var(--score-mid)",
+      wash: "var(--mid-wash)",
+      linha: "var(--mid-line)",
+      rotulo: "dá para salvar",
+    };
+  return {
+    estado: "falhou",
+    cor: "var(--score-low)",
+    wash: "var(--low-wash)",
+    linha: "var(--low-line)",
+    rotulo: "precisa revisar",
+  };
+}
+
+/** Cores e rótulo de um critério da call. */
+export function estiloEstado(estado: EstadoCritica): {
+  cor: string;
+  wash: string;
+  linha: string;
+  rotulo: string;
+} {
+  if (estado === "bom")
+    return {
+      cor: "var(--score-good)",
+      wash: "var(--good-wash)",
+      linha: "var(--good-line)",
+      rotulo: "bom",
+    };
+  if (estado === "atencao")
+    return {
+      cor: "var(--score-mid)",
+      wash: "var(--mid-wash)",
+      linha: "var(--mid-line)",
+      rotulo: "atenção",
+    };
+  return {
+    cor: "var(--score-low)",
+    wash: "var(--low-wash)",
+    linha: "var(--low-line)",
+    rotulo: "falhou",
+  };
+}
+
 /** Faixa da nota. O rótulo textual acompanha a cor em toda a interface. */
 export function faixaNota(nota: number): {
   tom: "good" | "mid" | "low";

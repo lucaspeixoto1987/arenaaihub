@@ -178,6 +178,7 @@ export default function HubPage() {
         aberto={aberta === "calls"}
         aoFechar={fechar}
         aoEnviarContexto={receberContexto}
+        aoAbrirFerramenta={(ferramenta) => abrir(ferramenta)}
         destacado={destacado}
       />
       <SimuladorDialog aberto={aberta === "simulador"} aoFechar={fechar} />

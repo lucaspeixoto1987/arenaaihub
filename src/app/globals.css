@@ -44,6 +44,14 @@
   --score-mid: #e58a00;
   --score-low: #c0272d;
 
+  /* Fundos e bordas dos mesmos três estados, para separar blocos sem gritar */
+  --good-wash: #e9f5ee;
+  --good-line: #bfe0cd;
+  --mid-wash: #fdf3e0;
+  --mid-line: #f2ddb3;
+  --low-wash: #fceceb;
+  --low-line: #f3c9c7;
+
   --radius: 12px;
   --shadow-card: 0 1px 2px rgba(20, 22, 26, 0.05);
   --shadow-pop:
@@ -79,6 +87,12 @@
   --color-score-good: var(--score-good);
   --color-score-mid: var(--score-mid);
   --color-score-low: var(--score-low);
+  --color-good-wash: var(--good-wash);
+  --color-good-line: var(--good-line);
+  --color-mid-wash: var(--mid-wash);
+  --color-mid-line: var(--mid-line);
+  --color-low-wash: var(--low-wash);
+  --color-low-line: var(--low-line);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
