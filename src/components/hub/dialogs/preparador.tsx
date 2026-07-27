@@ -3,10 +3,15 @@
 import { useState } from "react";
 import { ClipboardList, Globe, History, Search, Sparkles } from "lucide-react";
 import { Modal } from "@/components/hub/modal";
+import { PreparadorResultado } from "@/components/hub/dialogs/preparador-resultado";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { BuildNotice } from "@/components/ui/notice";
-import { getPreparacoes, getProdutos } from "@/lib/data";
+import {
+  getPreparacaoResultado,
+  getPreparacoes,
+  getProdutos,
+} from "@/lib/data";
 
 const origens = ["Prospecção ativa", "Referido", "Lead de tráfego"];
 
@@ -14,19 +19,39 @@ export function PreparadorDialog({
   aberto,
   aoFechar,
   aoEnviarContexto,
+  aoAbrirFerramenta,
   destacado,
 }: {
   aberto: boolean;
   aoFechar: () => void;
   aoEnviarContexto: (titulo: string, detalhe: string) => void;
+  /** Leva de uma preparação para outra ferramenta do Hub. */
+  aoAbrirFerramenta: (ferramenta: "simulador" | "calls") => void;
   /** Preparação aberta a partir da lista do cartão. */
   destacado: string | null;
 }) {
   const preparacoes = getPreparacoes();
   const produtos = getProdutos();
+  const resultado = getPreparacaoResultado();
   const [contato, setContato] = useState("");
   const [empresa, setEmpresa] = useState("");
   const [filtro, setFiltro] = useState("");
+  /* Abrir pelo cartão começa no formulário; abrir por um registro da lista
+     mostra direto a preparação pronta. A escolha do usuário (voltar, abrir uma
+     preparação) vale até o diálogo ser aberto de novo. */
+  const [vistaEscolhida, setVistaEscolhida] = useState<
+    "formulario" | "resultado" | null
+  >(null);
+  const [abertura, setAbertura] = useState(`${aberto}:${destacado}`);
+
+  if (abertura !== `${aberto}:${destacado}`) {
+    setAbertura(`${aberto}:${destacado}`);
+    setVistaEscolhida(null);
+  }
+
+  const noResultado =
+    (vistaEscolhida ?? (destacado ? "resultado" : "formulario")) === "resultado";
+  const setVista = setVistaEscolhida;
 
   const selecionada = preparacoes.find((item) => item.id === destacado);
   const lista = preparacoes.filter((item) =>
@@ -44,6 +69,57 @@ export function PreparadorDialog({
       `${casa} — contexto disponível para a C-CÍLIA continuar a conversa.`,
     );
     aoFechar();
+  }
+
+  if (noResultado) {
+    return (
+      <Modal
+        aberto={aberto}
+        aoFechar={aoFechar}
+        icone={ClipboardList}
+        titulo="Preparação de reunião"
+        descricao={`${resultado.empresa} · gerada ${resultado.geradaEm}`}
+        aoVoltar={() => setVista("formulario")}
+        acoes={
+          <button
+            type="button"
+            onClick={() => {
+              aoEnviarContexto(
+                `Preparação de reunião · ${resultado.contato}`,
+                `${resultado.empresa} — contexto disponível para a C-CÍLIA continuar a conversa.`,
+              );
+              aoFechar();
+            }}
+            className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-brand-line bg-brand-wash px-2.5 py-1.5 text-[11.5px] font-semibold text-brand transition-colors hover:bg-brand hover:text-white"
+          >
+            <span
+              aria-hidden
+              className="grid h-5 w-5 place-items-center rounded-full bg-brand text-[10px] font-bold text-white"
+            >
+              C
+            </span>
+            <span className="hidden sm:inline">Levar para a C-CÍLIA</span>
+            <span className="sm:hidden">C-CÍLIA</span>
+          </button>
+        }
+        rodape={
+          <>
+            <Button variante="contorno" onClick={() => setVista("formulario")}>
+              Nova preparação
+            </Button>
+            <span className="ml-auto text-[11px] text-ink-3">
+              {resultado.contato} · {resultado.produtos.join(" + ")}
+            </span>
+          </>
+        }
+      >
+        <PreparadorResultado
+          dados={resultado}
+          aoTreinarObjecoes={() => aoAbrirFerramenta("simulador")}
+          aoAnalisarCall={() => aoAbrirFerramenta("calls")}
+        />
+      </Modal>
+    );
   }
 
   return (
@@ -234,6 +310,7 @@ export function PreparadorDialog({
               <li key={item.id}>
                 <button
                   type="button"
+                  onClick={() => setVista("resultado")}
                   className={
                     "w-full rounded-lg border bg-surface px-3 py-2 text-left transition-colors hover:border-brand-line " +
                     (item.id === destacado

@@ -302,6 +302,197 @@ const produtos = [
   "Mentoria individual",
 ];
 
+/* ===========================================================================
+   Resultado do Preparador de Reunião
+   O formato é o contrato com o motor de IA: cada campo tem um trabalho claro
+   na tela, e nada é um parágrafo solto. Frases curtas viram destaque; o texto
+   longo fica guardado atrás de "ler completo".
+   =========================================================================== */
+
+export type EtapaRoteiro = {
+  id: string;
+  titulo: string;
+  minutos: number;
+  objetivo: string;
+  perguntas: { pergunta: string; revela: string }[];
+};
+
+export type PreparacaoResultado = {
+  id: string;
+  contato: string;
+  cargo: string;
+  empresa: string;
+  produtos: string[];
+  duracaoMin: number;
+  etapa: string;
+  geradaEm: string;
+
+  /** As três respostas que o vendedor precisa antes de entrar na chamada. */
+  dor: { frase: string; porque: string; abertura: string };
+  foco: { frase: string; pontos: string[]; completo: string };
+  proximoPasso: string;
+
+  contexto: { pontos: string[]; completo: string };
+  roteiro: EtapaRoteiro[];
+  frases: { frase: string; porque: string }[];
+  objecoes: { id: string; fala: string; porque: string }[];
+  checklist: string[];
+};
+
+const preparacaoExemplo: PreparacaoResultado = {
+  id: "p1",
+  contato: "José Francisco Peixoto",
+  cargo: "Dono",
+  empresa: "Renovação Engenharia",
+  produtos: ["VENDE-C CORP", "VENDE-C PASS"],
+  duracaoMin: 45,
+  etapa: "Diagnóstico",
+  geradaEm: "hoje, 08:42",
+
+  dor: {
+    frase:
+      "A empresa depende do José para fechar contrato complexo e manter a operação comercial rodando.",
+    porque:
+      "Ele é o dono e a empresa vende manutenção de ar-condicionado predial — venda técnica que quase sempre passa pela figura do fundador.",
+    abertura:
+      "Como você lida hoje com a venda de novos contratos quando precisa dividir o tempo entre a gestão da engenharia e a prospecção?",
+  },
+  foco: {
+    frase:
+      "Tirar a venda do bolso do dono — CORP instala, PASS mantém rodando.",
+    pontos: [
+      "CORP desenha e executa o treinamento sob medida, alinhando a operação técnica ao processo comercial.",
+      "PASS mantém o motor girando, com estímulo contínuo e formação para líderes e equipe.",
+    ],
+    completo:
+      "Apresentar a união do VENDE-C CORP com o VENDE-C PASS como a solução definitiva para tirar a venda do bolso do José e estruturar a Renovação Engenharia de ponta a ponta. O CORP entra desenhando e executando o treinamento sob medida para alinhar a operação técnica de manutenção ao processo comercial real, enquanto o PASS mantém o motor rodando com estímulos contínuos e formação paralela para líderes e equipe. Juntos, entregam o que falta no negócio: método prático aplicado por quem vende de verdade, garantindo que a equipe execute com padrão e previsibilidade sem depender dele o tempo todo.",
+  },
+  proximoPasso:
+    "Agendar uma sessão de alinhamento com os gestores para apresentar a proposta formalizada.",
+
+  contexto: {
+    pontos: [
+      "Manutenção predial vive de contrato recorrente — previsibilidade é o produto.",
+      "É o dono na linha de frente: a venda ainda depende da energia pessoal dele.",
+      "Sem processo padronizado, a empresa fica refém da oscilação de mercado.",
+      "Falta cadência na venda técnica e desenvolvimento contínuo da equipe.",
+    ],
+    completo:
+      "O mercado de manutenção predial exige constância e previsibilidade em contratos recorrentes, mas as empresas desse setor costumam sofrer com equipes operando sem método estruturado. José Francisco está na linha de frente como dono da Renovação Engenharia, o que indica que a operação comercial ainda depende diretamente da sua energia pessoal para fechar contratos. Sem um processo padronizado e desenvolvimento contínuo, a empresa acaba refém da oscilação de mercado e da falta de cadência na venda técnica. O desafio central é tirar o peso dos ombros do fundador, instalando um modelo que funcione todos os dias.",
+  },
+
+  roteiro: [
+    {
+      id: "abertura",
+      titulo: "Abertura",
+      minutos: 5,
+      objetivo:
+        "Combinar o objetivo da conversa e ganhar permissão para investigar.",
+      perguntas: [
+        {
+          pergunta:
+            "Como você lida hoje com a venda de novos contratos quando precisa dividir o tempo entre a engenharia e a prospecção?",
+          revela: "Abre a dor central sem acusar ninguém.",
+        },
+      ],
+    },
+    {
+      id: "diagnostico",
+      titulo: "Diagnóstico",
+      minutos: 18,
+      objetivo: "Medir o tamanho da dependência e o custo dela.",
+      perguntas: [
+        {
+          pergunta:
+            "De que forma sua equipe comercial transmite o valor técnico da manutenção sem precisar acionar você para fechar?",
+          revela:
+            "Mostra o grau de autonomia do time em negociações complexas.",
+        },
+        {
+          pergunta:
+            "Quantos contratos você perdeu no último semestre por não conseguir estar presente na negociação?",
+          revela:
+            "Quantifica o custo da dependência — vira argumento no fechamento.",
+        },
+        {
+          pergunta:
+            "Como o time é treinado hoje quando entra alguém novo na equipe técnica?",
+          revela: "Expõe a ausência de método e a informalidade da formação.",
+        },
+      ],
+    },
+    {
+      id: "valor",
+      titulo: "Valor",
+      minutos: 14,
+      objetivo: "Conectar CORP + PASS à dor que ele acabou de descrever.",
+      perguntas: [
+        {
+          pergunta:
+            "Se a equipe fechasse dois contratos por mês sem você na sala, o que mudaria na sua rotina?",
+          revela: "Faz o cliente dimensionar o ganho com as palavras dele.",
+        },
+      ],
+    },
+    {
+      id: "fechamento",
+      titulo: "Fechamento",
+      minutos: 8,
+      objetivo: "Sair com data marcada, não com “vou pensar”.",
+      perguntas: [
+        {
+          pergunta:
+            "Quem mais precisa estar na sala quando eu apresentar a proposta formalizada?",
+          revela: "Mapeia os decisores e cria o próximo passo naturalmente.",
+        },
+      ],
+    },
+  ],
+
+  frases: [
+    {
+      frase:
+        "Nós trazemos professores que operam no campo todo dia, sem teoria vazia, para instalar um processo comercial que funciona sem depender da sua presença constante.",
+      porque:
+        "Mostra que a solução é prática, testada em centenas de operações e focada em dar autonomia ao empresário.",
+    },
+    {
+      frase:
+        "O investimento total de duzentos e sessenta e seis mil reais no pacote combinado estrutura desde a base dos processos até a evolução contínua da equipe por um ano inteiro.",
+      porque:
+        "Ancora o valor global do projeto no pacote completo, resolvendo o problema de raiz.",
+    },
+  ],
+
+  objecoes: [
+    {
+      id: "o1",
+      fala: "O investimento total de duzentos e sessenta e seis mil reais está pesado para o nosso caixa neste momento.",
+      porque:
+        "Some dois produtos de ticket alto numa empresa de porte médio onde o caixa é gerido de perto pelo dono.",
+    },
+    {
+      id: "o2",
+      fala: "Nossa equipe técnica e comercial já tem uma rotina corrida na rua, não sei se teriam tempo para um programa contínuo.",
+      porque:
+        "Reflexo direto de uma operação de manutenção focada no curto prazo e na urgência diária.",
+    },
+    {
+      id: "o3",
+      fala: "Já fizemos treinamento antes e a equipe voltou a fazer do jeito antigo em dois meses.",
+      porque:
+        "Experiência anterior com curso solto, sem instalação de processo nem acompanhamento.",
+    },
+  ],
+
+  checklist: [
+    "Não vender curso isolado nem palestra motivacional — o assunto é processo instalado.",
+    "Mostrar as três camadas da empresa que o método atravessa para gerar receita previsível.",
+    "Conectar cada entrega à dor de sobrecarga dele como fundador, não a funcionalidades.",
+    "Fechar com a sessão de alinhamento agendada, com os gestores presentes.",
+  ],
+};
+
 export function getMembro() {
   return membro;
 }
@@ -325,6 +516,9 @@ export function getEquipe() {
 }
 export function getProdutos() {
   return produtos;
+}
+export function getPreparacaoResultado() {
+  return preparacaoExemplo;
 }
 
 /** Faixa da nota. O rótulo textual acompanha a cor em toda a interface. */

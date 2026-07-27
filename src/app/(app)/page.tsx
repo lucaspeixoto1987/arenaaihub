@@ -171,6 +171,7 @@ export default function HubPage() {
         aberto={aberta === "preparador"}
         aoFechar={fechar}
         aoEnviarContexto={receberContexto}
+        aoAbrirFerramenta={(ferramenta) => abrir(ferramenta)}
         destacado={destacado}
       />
       <AnaliseCallDialog
